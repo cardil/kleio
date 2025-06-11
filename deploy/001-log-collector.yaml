@@ -1,0 +1,49 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: collector
+  namespace: openshift-logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collector
+  template:
+    metadata:
+      labels:
+        app: collector
+        deployment: collector
+    spec:
+      containers:
+        - name: collector
+          image: quay.io/cardil/cluster-logging/collector
+          ports:
+            - name: syslog-tcp
+              containerPort: 8514
+              protocol: TCP
+            - name: syslog-udp
+              containerPort: 8514
+              protocol: UDP
+          env:
+            - name: PORT
+              value: '8514'
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: collector
+  namespace: openshift-logging
+spec:
+  ports:
+    - name: syslog-tcp
+      protocol: TCP
+      port: 514
+      targetPort: 8514
+    - name: syslog-udp
+      protocol: UDP
+      port: 514
+      targetPort: 8514
+  selector:
+    app: collector
+    deployment: collector

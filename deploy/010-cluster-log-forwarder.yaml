@@ -1,0 +1,27 @@
+---
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: logging
+  namespace: knative-serving
+spec:
+  managementState: Managed
+  outputs:
+    - name: syslog
+      syslog:
+        rfc: RFC5424
+        url: 'udp://collector.openshift-logging.svc:514'
+#        severity: '{.level||"Error"}'
+#        facility: '{.foo||"user"}'
+        appName: logs
+        enrichment: KubernetesMinimal
+        payloadKey: '{.message}'
+      type: syslog
+  pipelines:
+    - inputRefs:
+        - application
+      name: logs-to-syslog
+      outputRefs:
+        - syslog
+  serviceAccount:
+    name: log-collector
