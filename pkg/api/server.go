@@ -22,6 +22,7 @@ func Serve(store storage.Storage) server.Server {
 	router.Use(sloggin.New(slog.Default()))
 	router.GET("/download", a.download)
 	router.GET("/stats", a.stats)
+	router.GET("/", a.home)
 
 	port := 8080
 	if sport, ok := os.LookupEnv("API_PORT"); ok {
@@ -33,18 +34,18 @@ func Serve(store storage.Storage) server.Server {
 	bind := fmt.Sprint("0.0.0.0:", port)
 	handler := router.Handler()
 	srv := &http.Server{Addr: bind, Handler: handler}
-	return &httpServ{server: srv}
+	return &apiServ{server: srv}
 }
 
-type httpServ struct {
+type apiServ struct {
 	server *http.Server
 }
 
-func (h *httpServ) Run() error {
+func (h *apiServ) Run() error {
 	return h.server.ListenAndServe()
 }
 
-func (h *httpServ) Kill() error {
+func (h *apiServ) Kill() error {
 	return h.server.Shutdown(context.Background())
 }
 
@@ -60,4 +61,8 @@ func (a *api) stats(context *gin.Context) {
 	slog.Info("Stats")
 	stats := a.store.Stats()
 	context.JSON(http.StatusOK, stats)
+}
+
+func (a *api) home(c *gin.Context) {
+	c.Redirect(http.StatusFound, "/stats")
 }
