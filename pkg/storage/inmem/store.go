@@ -87,7 +87,6 @@ func (s *Storage) Download() storage.Artifacts {
 type messageReader struct {
 	msgNo    int
 	msgPrt   int
-	ln       bool
 	messages []message
 }
 

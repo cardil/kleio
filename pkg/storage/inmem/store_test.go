@@ -3,7 +3,7 @@ package inmem_test
 import (
 	"io"
 	"io/fs"
-	"math/rand/v2"
+	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
@@ -72,7 +72,7 @@ func TestStore(t *testing.T) {
 		f, err := os.Create(fp)
 		require.NoError(t, err)
 		writer := io.MultiWriter(f) // to avoid using ReaderFrom interface
-		buf := make([]byte, rand.N(62)+2)
+		buf := make([]byte, rand.Intn(62)+2)
 		_, err = io.CopyBuffer(writer, reader, buf)
 		require.NoError(t, err)
 	}
