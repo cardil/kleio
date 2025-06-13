@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"sync"
 	"time"
 
 	"github.com/cardil/qe-clusterlogging/pkg/clusterlogging"
@@ -12,6 +13,7 @@ import (
 )
 
 type Storage struct {
+	mu   sync.RWMutex
 	data map[string]*store
 }
 
@@ -40,6 +42,8 @@ func NewStore() *Storage {
 }
 
 func (s *Storage) Store(msg *clusterlogging.Message) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	key := msg.FullName()
 	st, ok := s.data[key]
 	if !ok {
@@ -57,6 +61,8 @@ func (s *Storage) Store(msg *clusterlogging.Message) error {
 }
 
 func (s *Storage) Stats() storage.Stats {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	cts := make([]storage.ContainerStat, 0, len(s.data))
 	for _, st := range s.data {
 		l := len(st.messages)
@@ -70,6 +76,8 @@ func (s *Storage) Stats() storage.Stats {
 }
 
 func (s *Storage) Download() storage.Artifacts {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	data := map[string]storage.FileReader{}
 	for _, st := range s.data {
 		key := st.info.FullName()
