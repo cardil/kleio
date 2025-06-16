@@ -12,5 +12,5 @@ type ContainerInfo struct {
 }
 
 func (i ContainerInfo) FullName() string {
-	return path.Join(i.NamespaceName, i.PodName, i.ContainerName)
+	return path.Join(i.NamespaceName, i.PodName+"-"+i.ContainerName)
 }
