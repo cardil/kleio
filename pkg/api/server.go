@@ -15,11 +15,17 @@ import (
 	sloggin "github.com/samber/slog-gin"
 )
 
+const format = "20060102-150405"
+
 func Serve(store storage.Storage) server.Server {
 	a := &api{store: store}
 	gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
-	router.Use(sloggin.New(slog.Default()))
+	router := gin.New()
+	router.Use(
+		gin.Recovery(),
+		sloggin.New(slog.Default()),
+		ErrorHandler,
+	)
 	router.GET("/download", a.download)
 	router.GET("/stats", a.stats)
 	router.GET("/", a.home)
@@ -51,16 +57,6 @@ func (h *apiServ) Kill() error {
 
 type api struct {
 	store storage.Storage
-}
-
-func (a *api) download(context *gin.Context) {
-	slog.Info("Download")
-}
-
-func (a *api) stats(context *gin.Context) {
-	slog.Info("Stats")
-	stats := a.store.Stats()
-	context.JSON(http.StatusOK, stats)
 }
 
 func (a *api) home(c *gin.Context) {
