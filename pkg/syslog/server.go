@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"net"
 	"os"
 	"strconv"
 
-	pkgserver "github.com/cardil/qe-clusterlogging/pkg/server"
+	"github.com/cardil/qe-clusterlogging/pkg/server"
 	"gopkg.in/mcuadros/go-syslog.v2"
 )
 
@@ -16,17 +15,14 @@ var ErrSyslogInit = errors.New("Syslog init failed")
 
 type Handler func(syslog.LogPartsChannel)
 
-func Serve(handle Handler) pkgserver.Server {
+func Serve(handle Handler) server.Server {
 	channel := make(syslog.LogPartsChannel)
 	handler := syslog.NewChannelHandler(channel)
 
-	server := syslog.NewServer()
-	server.SetFormat(syslog.RFC5424)
-	server.SetHandler(handler)
-	port := 514
-	if !canBind(port) {
-		port = 8514
-	}
+	srv := syslog.NewServer()
+	srv.SetFormat(syslog.RFC5424)
+	srv.SetHandler(handler)
+	port := 8514
 	if eport, set := os.LookupEnv("PORT"); set {
 		iport, perr := strconv.Atoi(eport)
 		if perr == nil {
@@ -36,22 +32,11 @@ func Serve(handle Handler) pkgserver.Server {
 	bind := fmt.Sprint("0.0.0.0:", port)
 
 	return &syslogServer{
-		server:  server,
+		server:  srv,
 		bind:    bind,
 		channel: channel,
 		handler: handle,
 	}
-}
-
-func canBind(port int) bool {
-	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-
-	if err != nil {
-		return false
-	}
-
-	_ = ln.Close()
-	return true
 }
 
 type syslogServer struct {
