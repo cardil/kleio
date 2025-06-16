@@ -61,8 +61,8 @@ func (s *Storage) Store(msg *clusterlogging.Message) error {
 }
 
 func (s *Storage) Stats() storage.Stats {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	cts := make([]storage.ContainerStat, 0, len(s.data))
 	for _, st := range s.data {
 		l := len(st.messages)
@@ -76,8 +76,8 @@ func (s *Storage) Stats() storage.Stats {
 }
 
 func (s *Storage) Download() storage.Artifacts {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	data := map[string]storage.FileReader{}
 	for _, st := range s.data {
 		key := st.info.FullName()

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -14,6 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 	sloggin "github.com/samber/slog-gin"
 )
+
+var ErrApiServer = errors.New("API Server failure")
 
 const format = "20060102-150405"
 
@@ -47,12 +50,20 @@ type apiServ struct {
 	server *http.Server
 }
 
-func (h *apiServ) Run() error {
-	return h.server.ListenAndServe()
+func (a *apiServ) Run() (err error) {
+	slog.Info("Starting API server", "bind", a.server.Addr)
+	err = a.server.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) {
+		err = nil
+	}
+	if err != nil {
+		err = fmt.Errorf("%w: %w", ErrApiServer, err)
+	}
+	return
 }
 
-func (h *apiServ) Kill() error {
-	return h.server.Shutdown(context.Background())
+func (a *apiServ) Kill() error {
+	return a.server.Shutdown(context.Background())
 }
 
 type api struct {
