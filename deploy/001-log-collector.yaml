@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: collector
-          image: quay.io/cardil/cluster-logging/collector
+          image: quay.io/cardil/kleio/collector
           ports:
             - name: syslog-tcp
               containerPort: 8514
