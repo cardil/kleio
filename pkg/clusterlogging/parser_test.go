@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cardil/qe-clusterlogging/pkg/clusterlogging"
-	"github.com/cardil/qe-clusterlogging/pkg/kubernetes"
+	"github.com/cardil/kleio/pkg/clusterlogging"
+	"github.com/cardil/kleio/pkg/kubernetes"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mcuadros/go-syslog.v2/format"
 

@@ -3,11 +3,11 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/cardil/qe-clusterlogging/pkg/api"
-	"github.com/cardil/qe-clusterlogging/pkg/collector"
-	"github.com/cardil/qe-clusterlogging/pkg/server"
-	"github.com/cardil/qe-clusterlogging/pkg/storage/inmem"
-	"github.com/cardil/qe-clusterlogging/pkg/syslog"
+	"github.com/cardil/kleio/pkg/api"
+	"github.com/cardil/kleio/pkg/collector"
+	"github.com/cardil/kleio/pkg/server"
+	"github.com/cardil/kleio/pkg/storage/inmem"
+	"github.com/cardil/kleio/pkg/syslog"
 
 	"github.com/wavesoftware/go-retcode"
 )

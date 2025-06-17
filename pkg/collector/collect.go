@@ -3,8 +3,8 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/cardil/qe-clusterlogging/pkg/clusterlogging"
-	"github.com/cardil/qe-clusterlogging/pkg/storage"
+	"github.com/cardil/kleio/pkg/clusterlogging"
+	"github.com/cardil/kleio/pkg/storage"
 	"gopkg.in/mcuadros/go-syslog.v2"
 	"gopkg.in/mcuadros/go-syslog.v2/format"
 )

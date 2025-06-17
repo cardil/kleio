@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/cardil/qe-clusterlogging/pkg/server"
+	"github.com/cardil/kleio/pkg/server"
 	"gopkg.in/mcuadros/go-syslog.v2"
 )
 

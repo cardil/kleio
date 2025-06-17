@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"github.com/cardil/qe-clusterlogging/pkg/kubernetes"
+	"github.com/cardil/kleio/pkg/kubernetes"
 )
 
 type Stats []ContainerStat

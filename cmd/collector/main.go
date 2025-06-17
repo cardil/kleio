@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/cardil/qe-clusterlogging/internal/collector"
+	"github.com/cardil/kleio/internal/collector"
 )
 
 func main() {

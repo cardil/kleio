@@ -9,6 +9,7 @@ FROM registry.access.redhat.com/ubi9/ubi-minimal
 
 COPY --from=builder /bin/collector /usr/sbin/collector
 
-EXPOSE 514
+EXPOSE 8514
+EXPOSE 8080
 
 ENTRYPOINT ["/usr/sbin/collector"]

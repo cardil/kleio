@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cardil/qe-clusterlogging/pkg/clusterlogging"
-	"github.com/cardil/qe-clusterlogging/pkg/kubernetes"
-	"github.com/cardil/qe-clusterlogging/pkg/storage/inmem"
+	"github.com/cardil/kleio/pkg/clusterlogging"
+	"github.com/cardil/kleio/pkg/kubernetes"
+	"github.com/cardil/kleio/pkg/storage/inmem"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
