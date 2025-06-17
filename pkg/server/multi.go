@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"sync/atomic"
 	"syscall"
 )
 
@@ -15,11 +16,11 @@ func Multi(servers ...Server) Server {
 
 type multiserv struct {
 	servers []Server
-	killed  bool
+	killed  atomic.Bool
 }
 
 func (m *multiserv) Run() error {
-	if m.killed {
+	if m.killed.Load() {
 		return ErrAlreadyStopped
 	}
 	slog.Info("Starting servers", "n", len(m.servers))
@@ -51,11 +52,10 @@ func (m *multiserv) Run() error {
 }
 
 func (m *multiserv) Kill() error {
-	if m.killed {
+	if !m.killed.CompareAndSwap(false, true) {
 		return nil
 	}
 	slog.Info("Shutting down servers", "n", len(m.servers))
-	m.killed = true
 	errs := make([]error, 0)
 	for _, server := range m.servers {
 		if err := server.Kill(); err != nil {

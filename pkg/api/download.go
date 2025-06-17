@@ -16,6 +16,11 @@ func (a *api) download(context *gin.Context) {
 		_ = context.Error(err)
 		return
 	}
+	defer func() {
+		if err = reader.Close(); err != nil {
+			_ = context.Error(err)
+		}
+	}()
 	contentType := "application/zip"
 	now := time.Now()
 	filename := fmt.Sprintf("logs-%s.zip", now.Format(format))
@@ -23,7 +28,4 @@ func (a *api) download(context *gin.Context) {
 		"Content-Disposition": `attachment; filename="` + filename + `"`,
 	}
 	context.DataFromReader(http.StatusOK, reader.Size, contentType, reader, headers)
-	if err = reader.Close(); err != nil {
-		_ = context.Error(err)
-	}
 }

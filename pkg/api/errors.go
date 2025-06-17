@@ -14,7 +14,9 @@ func ErrorHandler(c *gin.Context) {
 		slog.Error("", "error", err)
 	}
 
-	if len(c.Errors) > 0 {
-		c.JSON(http.StatusInternalServerError, "Internal server error")
+	if len(c.Errors) > 0 && !c.Writer.Written() {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal server error",
+		})
 	}
 }

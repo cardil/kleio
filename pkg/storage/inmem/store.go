@@ -66,10 +66,14 @@ func (s *Storage) Stats() storage.Stats {
 	cts := make([]storage.ContainerStat, 0, len(s.data))
 	for _, st := range s.data {
 		l := len(st.messages)
+		var ts time.Time
+		if l > 0 {
+			ts = st.messages[l-1].timestamp
+		}
 		cts = append(cts, storage.ContainerStat{
 			ContainerInfo: st.info,
 			MessageCount:  l,
-			LastMessage:   st.messages[l-1].timestamp,
+			LastMessage:   ts,
 		})
 	}
 	return cts
