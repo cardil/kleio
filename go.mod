@@ -2,8 +2,6 @@ module github.com/cardil/kleio
 
 go 1.24.0
 
-toolchain go1.24.1
-
 require (
 	github.com/gin-gonic/gin v1.10.1
 	github.com/samber/slog-gin v1.15.1
