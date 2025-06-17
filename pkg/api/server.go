@@ -9,8 +9,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/cardil/qe-clusterlogging/pkg/server"
-	"github.com/cardil/qe-clusterlogging/pkg/storage"
+	"github.com/cardil/kleio/pkg/server"
+	"github.com/cardil/kleio/pkg/storage"
 
 	"github.com/gin-gonic/gin"
 	sloggin "github.com/samber/slog-gin"

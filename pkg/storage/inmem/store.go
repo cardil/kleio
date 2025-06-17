@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cardil/qe-clusterlogging/pkg/clusterlogging"
-	"github.com/cardil/qe-clusterlogging/pkg/kubernetes"
-	"github.com/cardil/qe-clusterlogging/pkg/storage"
+	"github.com/cardil/kleio/pkg/clusterlogging"
+	"github.com/cardil/kleio/pkg/kubernetes"
+	"github.com/cardil/kleio/pkg/storage"
 )
 
 type Storage struct {

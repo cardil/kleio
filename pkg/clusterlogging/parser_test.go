@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cardil/qe-clusterlogging/pkg/clusterlogging"
-	"github.com/cardil/qe-clusterlogging/pkg/kubernetes"
+	"github.com/cardil/kleio/pkg/clusterlogging"
+	"github.com/cardil/kleio/pkg/kubernetes"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mcuadros/go-syslog.v2/format"
 
@@ -14,7 +14,7 @@ import (
 
 func TestParse(t *testing.T) {
 	dt := time.Date(2025, 6, 17, 9, 52, 57,
-		46_000_000, time.FixedZone("", 0))
+		46_000_000, time.UTC)
 	tcs := []parseTestCase{{
 		name:    "empty",
 		wantErr: clusterlogging.ErrInvalidFormat,
@@ -51,7 +51,7 @@ func TestParse(t *testing.T) {
 		input: map[string]interface{}{
 			"message": `{
 	"message": "INFO msg",
-	"timestamp": "2025-06-17T09:52:57.046+00:00",
+	"timestamp": "2025-06-17T09:52:57.046Z",
 	"kubernetes": {
 		"pod_name": "foo",
 		"namespace_name": "default",
