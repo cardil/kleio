@@ -13,6 +13,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
+	t.Parallel()
 	dt := time.Date(2025, 6, 17, 9, 52, 57,
 		46_000_000, time.UTC)
 	tcs := []parseTestCase{{
@@ -74,6 +75,7 @@ type parseTestCase struct {
 }
 
 func (tc parseTestCase) test(t *testing.T) {
+	t.Parallel()
 	msg, err := clusterlogging.Parse(tc.input)
 	require.ErrorIs(t, err, tc.wantErr)
 	assert.EqualValues(t, tc.want, msg)
