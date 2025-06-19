@@ -3,7 +3,7 @@ apiVersion: observability.openshift.io/v1
 kind: ClusterLogForwarder
 metadata:
   name: logging
-  namespace: knative-serving
+  namespace: openshift-logging
 spec:
   managementState: Managed
   outputs:
@@ -13,20 +13,6 @@ spec:
         url: 'udp://collector.openshift-logging.svc:514'
         appName: logs
       type: syslog
-  inputs:
-    - name: knative-logs
-      type: application
-      application:
-        includes:
-          - namespace: knative-serving
-          - namespace: knative-serving-ingress
-          - namespace: knative-eventing
-          - namespace: knative-testing
-          - namespace: knative-tests
-          - namespace: eventing-e2e0
-          - namespace: eventing-e2e1
-          - namespace: eventing-e2e2
-          - namespace: eventing-e2e3
   pipelines:
     - inputRefs:
         - application
@@ -34,4 +20,4 @@ spec:
       outputRefs:
         - syslog
   serviceAccount:
-    name: log-collector
+    name: kleio

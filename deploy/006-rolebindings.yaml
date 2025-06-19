@@ -2,11 +2,11 @@
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: log-collector-application-logs
+  name: kleio-application-logs
 subjects:
   - kind: ServiceAccount
-    name: log-collector
-    namespace: knative-serving
+    name: kleio
+    namespace: openshift-logging
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -15,11 +15,11 @@ roleRef:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: log-collector-write-application-logs
+  name: kleio-write-application-logs
 subjects:
   - kind: ServiceAccount
-    name: log-collector
-    namespace: knative-serving
+    name: kleio
+    namespace: openshift-logging
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
