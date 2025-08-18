@@ -101,7 +101,7 @@ func (s *Storage) Download() storage.Artifacts {
 func (s *Storage) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.data = nil
+	s.data = make(map[string]*store)
 
 	return nil
 }
