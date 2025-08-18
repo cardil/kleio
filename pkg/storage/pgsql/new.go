@@ -7,23 +7,24 @@ import (
 	"log/slog"
 	"os"
 	"strings"
-	"sync"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var ErrCantConnect = errors.New("can't connect to database")
 
 func NewStore(ctx context.Context, cfg *pgx.ConnConfig) (*Storage, error) {
 	connString := cfg.ConnString()
-	conn, err := pgx.Connect(ctx, connString)
+	pool, err := pgxpool.New(ctx, connString)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrCantConnect, err)
 	}
 	st := &Storage{
-		conn: conn,
+		pool: pool,
 		ctx:  ctx,
 	}
+
 	connString = strings.Replace(connString, cfg.Password, "***", 1)
 	err = st.init()
 	slog.Info("Using PostgreSQL store", "conn", connString)
@@ -44,26 +45,35 @@ func NewStoreFromEnvironment(ctx context.Context) (*Storage, error) {
 }
 
 type Storage struct {
-	conn *pgx.Conn
+	pool *pgxpool.Pool
 	ctx  context.Context
-	mu   sync.RWMutex
 }
 
 func (s *Storage) Close() error {
-	return s.conn.Close(context.Background())
+	s.pool.Close()
+	return nil
 }
 
-func (s *Storage) init() (err error) {
-	_, err = s.conn.Exec(s.ctx, `CREATE TABLE IF NOT EXISTS logs (
+func (s *Storage) init() error {
+	if err := s.pool.AcquireFunc(s.ctx, func(c *pgxpool.Conn) error {
+		return s.initWithConn(c)
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Storage) initWithConn(conn *pgxpool.Conn) (err error) {
+	_, err = conn.Exec(s.ctx, `CREATE TABLE IF NOT EXISTS logs (
   id        integer primary key generated always as identity,
   ts        timestamp not null,
-  msg       varchar(4096) not null,
+  msg       varchar(32768) not null,
   container varchar(80) not null,
   image     varchar(500) not null,
   namespace varchar(80) not null,
   pod       varchar(80) not null
 );`)
-	_, perr := s.conn.Exec(s.ctx, `CREATE INDEX IF NOT EXISTS 
+	_, perr := conn.Exec(s.ctx, `CREATE INDEX IF NOT EXISTS 
 container_info_index ON logs (container, image, namespace, pod)`)
 	err = errors.Join(err, perr)
 	return
