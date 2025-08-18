@@ -19,6 +19,9 @@ func NewStore(ctx context.Context, cfg *pgxpool.Config) (*Storage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrCantConnect, err)
 	}
+	if err = pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrCantConnect, err)
+	}
 	st := &Storage{
 		pool: pool,
 		ctx:  ctx,

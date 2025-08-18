@@ -9,7 +9,7 @@ import (
 	"github.com/cardil/kleio/pkg/clusterlogging"
 	"github.com/cardil/kleio/pkg/kubernetes"
 	"github.com/cardil/kleio/pkg/storage/pgsql"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	testpgsql "github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -35,7 +35,7 @@ func TestPgsqlStorage(t *testing.T) {
 		require.NoError(t, pgsqlContainer.Terminate(ctx))
 	}()
 	uri := pgsqlContainer.MustConnectionString(ctx)
-	cfg, err := pgx.ParseConfig(uri)
+	cfg, err := pgxpool.ParseConfig(uri)
 	require.NoError(t, err)
 	store, err := pgsql.NewStore(ctx, cfg)
 	require.NoError(t, err)
