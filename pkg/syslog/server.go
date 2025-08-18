@@ -71,6 +71,6 @@ func (s *syslogServer) Run() (err error) {
 	return nil
 }
 
-func (s *syslogServer) Kill() error {
+func (s *syslogServer) Close() error {
 	return s.server.Kill()
 }

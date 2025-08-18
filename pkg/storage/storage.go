@@ -6,4 +6,5 @@ type Storage interface {
 	Store(msg *clusterlogging.Message) error
 	Stats() Stats
 	Download() Artifacts
+	Close() error
 }
