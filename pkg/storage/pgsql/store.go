@@ -133,6 +133,9 @@ FROM logs ORDER BY id;`
 		}
 
 		arts = store.Download()
+		if err = rows.Err(); err != nil {
+			return err
+		}
 		return nil
 	})
 

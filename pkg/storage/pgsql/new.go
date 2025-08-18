@@ -5,18 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"os"
 	"strings"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var ErrCantConnect = errors.New("can't connect to database")
 
-func NewStore(ctx context.Context, cfg *pgx.ConnConfig) (*Storage, error) {
-	connString := cfg.ConnString()
-	pool, err := pgxpool.New(ctx, connString)
+func NewStore(ctx context.Context, cfg *pgxpool.Config) (*Storage, error) {
+	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrCantConnect, err)
 	}
@@ -25,8 +24,13 @@ func NewStore(ctx context.Context, cfg *pgx.ConnConfig) (*Storage, error) {
 		ctx:  ctx,
 	}
 
-	connString = strings.Replace(connString, cfg.Password, "***", 1)
 	err = st.init()
+	connString := cfg.ConnString()
+	if u, err := url.Parse(connString); err != nil {
+		connString = "xxxxx"
+	} else {
+		connString = u.Redacted()
+	}
 	slog.Info("Using PostgreSQL store", "conn", connString)
 	return st, err
 }
@@ -37,7 +41,7 @@ func NewStoreFromEnvironment(ctx context.Context) (*Storage, error) {
 	if !strings.HasPrefix(uri, "postgresql://") {
 		return nil, nil
 	}
-	cfg, err := pgx.ParseConfig(uri)
+	cfg, err := pgxpool.ParseConfig(uri)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrCantConnect, err)
 	}
@@ -74,7 +78,7 @@ func (s *Storage) initWithConn(conn *pgxpool.Conn) (err error) {
   pod       varchar(80) not null
 );`)
 	_, perr := conn.Exec(s.ctx, `CREATE INDEX IF NOT EXISTS 
-container_info_index ON logs (container, image, namespace, pod)`)
+container_info_index ON logs (container, image, namespace, pod, id DESC, ts DESC)`)
 	err = errors.Join(err, perr)
 	return
 }
