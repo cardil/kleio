@@ -43,11 +43,12 @@ func Serve(store storage.Storage) server.Server {
 	bind := fmt.Sprint("0.0.0.0:", port)
 	handler := router.Handler()
 	srv := &http.Server{Addr: bind, Handler: handler}
-	return &apiServ{server: srv}
+	return &apiServ{server: srv, store: store}
 }
 
 type apiServ struct {
 	server *http.Server
+	store  storage.Storage
 }
 
 func (a *apiServ) Run() (err error) {
@@ -62,8 +63,11 @@ func (a *apiServ) Run() (err error) {
 	return
 }
 
-func (a *apiServ) Kill() error {
-	return a.server.Shutdown(context.Background())
+func (a *apiServ) Close() (err error) {
+	ctx := context.Background()
+	err = a.server.Shutdown(ctx)
+	err = errors.Join(err, a.store.Close())
+	return
 }
 
 type api struct {

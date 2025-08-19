@@ -41,6 +41,8 @@ func NewStore() *Storage {
 	}
 }
 
+var _ storage.Storage = &Storage{}
+
 func (s *Storage) Store(msg *clusterlogging.Message) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -94,6 +96,14 @@ func (s *Storage) Download() storage.Artifacts {
 		}
 	}
 	return data
+}
+
+func (s *Storage) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.data = make(map[string]*store)
+
+	return nil
 }
 
 type messageReader struct {

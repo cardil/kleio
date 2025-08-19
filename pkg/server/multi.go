@@ -43,22 +43,22 @@ func (m *multiserv) Run() error {
 	for err := range errCh {
 		if err != nil {
 			errs = append(errs, err)
-			if err = m.Kill(); err != nil {
+			if err = m.Close(); err != nil {
 				errs = append(errs, err)
 			}
 		}
 	}
-	return errors.Join(errs...)
+	return errors.Join(errors.Join(errs...), m.Close())
 }
 
-func (m *multiserv) Kill() error {
+func (m *multiserv) Close() error {
 	if !m.killed.CompareAndSwap(false, true) {
 		return nil
 	}
 	slog.Info("Shutting down servers", "n", len(m.servers))
 	errs := make([]error, 0)
 	for _, server := range m.servers {
-		if err := server.Kill(); err != nil {
+		if err := server.Close(); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -71,7 +71,7 @@ func (m *multiserv) registerSignals() {
 	go func() {
 		sig := <-sigs
 		slog.Info("Received", "signal", sig)
-		if err := m.Kill(); err != nil {
+		if err := m.Close(); err != nil {
 			slog.Error("Shutdown error", "error", err)
 		}
 	}()
