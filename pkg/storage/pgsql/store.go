@@ -1,11 +1,13 @@
 package pgsql
 
 import (
+	"errors"
 	"log/slog"
 
 	"github.com/cardil/kleio/pkg/clusterlogging"
 	"github.com/cardil/kleio/pkg/storage"
 	"github.com/cardil/kleio/pkg/storage/inmem"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -96,8 +98,8 @@ func (s *Storage) Download() storage.Artifacts {
 	return arts
 }
 
-func (s *Storage) download() (arts storage.Artifacts, err error) {
-	err = s.pool.AcquireFunc(s.ctx, func(conn *pgxpool.Conn) error {
+func (s *Storage) download() (arts storage.Artifacts, derr error) {
+	derr = s.pool.AcquireFunc(s.ctx, func(conn *pgxpool.Conn) (err error) {
 		sql := `SELECT
     container,
     image,
@@ -106,15 +108,19 @@ func (s *Storage) download() (arts storage.Artifacts, err error) {
     msg,
     ts
 FROM logs ORDER BY id;`
-		rows, err := conn.Query(s.ctx, sql)
+		var rows pgx.Rows
+		rows, err = conn.Query(s.ctx, sql)
 		if rows != nil {
 			defer rows.Close()
 		}
 		if err != nil {
-			return err
+			return
 		}
 
 		store := inmem.NewStore()
+		defer func() {
+			err = errors.Join(err, store.Close())
+		}()
 		for rows.Next() {
 			e := &clusterlogging.Message{}
 			if err = rows.Scan(
@@ -125,18 +131,18 @@ FROM logs ORDER BY id;`
 				&e.Message,
 				&e.Timestamp,
 			); err != nil {
-				return err
+				return
 			}
 			if err = store.Store(e); err != nil {
-				return err
+				return
 			}
 		}
 
 		arts = store.Download()
 		if err = rows.Err(); err != nil {
-			return err
+			return
 		}
-		return nil
+		return
 	})
 
 	return
